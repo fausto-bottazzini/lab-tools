@@ -1,10 +1,11 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="settings",
-    version="0.1",
-    packages=find_packages(),
+    name='settings',
+    version='0.1.0',
+    description='Librería personal con funciones matemáticas y utilitarias',
+    author='Julia Bottazzini',
+    packages=find_packages(),  # encuentra automáticamente el paquete "settings"
     include_package_data=True,
-    description="Librería de configuraciones reutilizables",
-    author="Fausto Bottazzini",
+    install_requires=[],
 )
