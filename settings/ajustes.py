@@ -6,12 +6,11 @@ import numpy as np                                                         # num
 import matplotlib.pyplot as plt                                            # graficos
 import scipy.stats as stats                                                # pvalor y chi2
 from scipy.stats import chi2                                               # chi2
-from scipy.optimize import curve_fit                                       # curv_fit (ajustes)
 from scipy.optimize import minimize                                        # minimize (ajustes con metodos)
 
 
 # Bondad (Chi^2 y p-valor)
-def chi2_pvalor(y, yerr, y_mod, parametros, reducido = False):
+def chi2_pvalor(y, yerr, y_mod, parametros, reducido = True):
     """
     Calcula el chi-cuadrado (χ²), el p-valor y los grados de libertad de un ajuste.
 
@@ -19,7 +18,7 @@ def chi2_pvalor(y, yerr, y_mod, parametros, reducido = False):
     - y: valores observados
     - yerr: errores de cada punto
     - y_mod: valores ajustados (modelo)
-    - parametros: pop del modelo
+    - parametros: parametros optimos del modelo
     - reducido: si es True, calcula el χ² reducido (χ² / grados de libertad) y no devuelve los grados de libertad
     
     Returns:
@@ -45,80 +44,202 @@ def chi2_pvalor(y, yerr, y_mod, parametros, reducido = False):
 
     if reducido:
         chi_cuadrado /= grados
-        p_value = stats.chi2.sf(chi_cuadrado, 1)
         return chi_cuadrado, p_value
     else:
         return chi_cuadrado, p_value, grados
 
+def R2(y, y_mod, error=False):
+    """
+    Calcula el coeficiente de determinación R² (Pearson) de un ajuste.
 
+    Parámetros:
+    - y: valores observados
+    - y_mod: valores ajustados (modelo)
+    - error: si True, también devuelve el error estimado de R²
 
+    Retorna:
+    - R² (float)
+    - Si error=True: (R², error_R²)
+    
+    Fórmulas:
+    - R² = 1 - SS_res / SS_tot
+    - Error aproximado: sqrt(4 * R² * (1 - R²) / (n - 2))
+    """
+    y = np.asarray(y)
+    y_mod = np.asarray(y_mod)
 
-# Coeficiente de Pearson (R^2)
-def R2(y,y_mod):
-  "calcula el coeficiente de Pearson de un ajuste"
-  def residuals(y, ymod):
-    return y - y_mod
-  ss_res2 = np.sum(residuals(y,y_mod)**2)
-  ss_tot2 = np.sum((y-np.mean(y))**2)
-  r_squared2 = 1 - (ss_res2 / ss_tot2)
-  return r_squared2
+    ss_res = np.sum((y - y_mod) ** 2)
+    ss_tot = np.sum((y - np.mean(y)) ** 2)
+
+    if ss_tot == 0:
+        raise ValueError("Varianza total nula: R² indefinido")
+
+    r_squared = 1 - (ss_res / ss_tot)
+
+    if error:
+        n = len(y)
+        if n <= 2:
+            raise ValueError("No se puede estimar el error de R² con menos de 3 datos")
+        err_r2 = np.sqrt(4 * r_squared * (1 - r_squared) / (n - 2))
+        return r_squared, err_r2
+
+    return r_squared
 
 # residuos (cuadrados)
 # histograma: #bines = np.sqrt(#med)
 
-def residuos(f, pop, x_data, y_data, std, grafico = False, bines = False):
-    "calcula los residuos de un ajuste, puede graficarse"
-    "#bines = np.sqrt(#med)"
-    ymod = np.array(f(x_data, *pop))
-    y_data = np.array(y_data)
-    res = ((y_data - ymod)**2) 
-    resstd = ((y_data - ymod/std)**2)
+def residuos(y, yerr, y_mod, grafico=False, bines=None, ponderado=True):
+    """
+    Calcula los residuos cuadrados (normales o ponderados) de un ajuste y, opcionalmente, los grafica.
+
+    Parámetros:
+    - y: valores observados
+    - yerr: errores de cada punto
+    - y_mod: valores ajustados (modelo)
+    - grafico: si True, grafica el histograma de residuos
+    - bines: cantidad de bines del histograma (None usa raíz de N)
+    - ponderado: si True, calcula residuos ponderados por el error
+
+    Retorna:
+    - residuos: residuos al cuadrado (normales o ponderados)
+    """
+    y_data = np.asarray(y_data)
+    yerr = np.asarray(yerr)
+    y_mod = np.asarray(y_mod)
+    
+    if ponderado:
+        residuos = ((y_data - y_mod) / yerr) ** 2
+    else:
+        residuos = (y_data - y_mod) ** 2
+
     if grafico:
-        if bines:
-            # plt.figure()
-            # plt.title("Histograma de residuos cuadrados")
-            # plt.hist(res, int(bines))
-            plt.figure()
-            plt.title("Histograma de residuos cuadrados ponderados")
-            plt.hist(resstd, int(bines))
-        else:
-            # plt.figure()
-            # plt.title("Histograma de residuos cuadrados")
-            # plt.hist(res, int(np.sqrt(len(y_data))))
-            plt.figure()
-            plt.title("Histograma de residuos cuadrados ponderados")
-            plt.hist(resstd, int(np.sqrt(len(y_data))))
-    return res
+        plt.figure()
+        titulo = "Histograma de residuos cuadrados"
+        if ponderado:
+            titulo += " ponderados"
+        plt.title(titulo)
+        bins = int(bines) if bines else int(np.sqrt(len(y_data)))
+        plt.hist(residuos, bins=bins)
+
+    return residuos
 
 
 # A corregir y mejorar
-##################################################################################
-Metodos = ["Nelder-Mead", "Powell", "BFGS", "L-BFGS-B", "CG", "Newton-CG", "TNC", "COBYLA", "SLSQP", "dogleg", "trust-constr", "trust-ncg", "trust-exact", "trust-krylov"] #curvefit (COBYQA)
-def Minimizer(f, x_data, y_data, std, parametros_iniciales, metodo = None, opciones = None):          #usar funciones que tomen np.arrays
-    "Metodos: Nelder-Mead, Powell, BFGS, L-BFGS-B, CG, Newton-CG, TNC, COBYLA, COBYQA, SLSQP, dogleg, trust-constr, trust-ncg, trust-exact, trust-krylov"
-    def error(parametros):
-        y_mod = f(x_data, *parametros)
-        return np.sum(((y_data - y_mod)/std)**2)
+def Minimizer(f, x_data, y_data, std, parametros_iniciales, metodo="curve_fit", opciones=None,
+              jac_simbolico=None, hess_simbolico=None, covarianza=True):
+    """
+    Ajuste general con múltiples métodos.
 
-    def jacobiano(parametros):
-        epsilon = np.sqrt(np.finfo(float).eps)
-        return np.array([(error(parametros + epsilon * np.eye(1, len(parametros), k)[0]) - error(parametros)) / epsilon for k in range(len(parametros))], dtype = float)
+    Parámetros:
+    - f: función modelo
+    - x_data, y_data: datos
+    - std: errores
+    - parametros_iniciales: guess inicial
+    - metodo: string del método
+    - opciones: opciones específicas del método
+    - jac_simbolico: función que devuelve gradiente del error (exacto)
+    - hess_simbolico: función que devuelve hessiano del error (exacto)
+    - covarianza: si True, devuelve también matriz de covarianza
 
-    def hessiano(parametros):
-        epsilon = np.sqrt(np.finfo(float).eps)
-        n = len(parametros)
-        hess = np.zeros((n, n), dtype=float)
-        for i in range(n):
-            for j in range(n):
-                ei = np.eye(1, n, i)[0] * epsilon
-                ej = np.eye(1, n, j)[0] * epsilon
-                hess[i, j] = (error(parametros + ei + ej) - error(parametros + ei) - error(parametros + ej) + error(parametros)) / (epsilon ** 2)
-        return hess
+    Retorna:
+    - params_opt: parámetros encontrados
+    - cov: matriz de covarianza (si covarianza=True)
 
-    jac = jacobiano if metodo in ['Newton-CG', 'dogleg', 'trust-ncg', 'trust-krylov', 'trust-exact'] else None
-    hess = hessiano if metodo in ['trust-ncg', 'trust-krylov', 'trust-exact'] else None
-    
-    resultado = minimize(error, parametros_iniciales, method=metodo, jac=jac, hess=hess, options=opciones)
+    Notas:
+    - Métodos disponibles: "nelder-mead", "powell", "bfgs", "l-bfgs-b", "cg", "newton-cg",
+      "tnc", "cobyla", "slsqp", "dogleg", "trust-constr", "trust-ncg", "trust-exact", "trust-krylov",
+      "curve_fit", "polyfit", "differential_evolution", "dual_annealing", "basinhopping", "shgo".
+    - Si se usa "polyfit", se debe especificar el grado en opciones.
+    - Diferential Evolution, Dual Annealing y shgo requieren bounds en opciones.
+    - Basinhopping requiere un método local en opciones.
+    """
 
-    return resultado.x
-#################################################################################################
+    metodo = metodo.lower()
+
+    if metodo in ["nelder-mead", "powell", "bfgs", "l-bfgs-b", "cg", "newton-cg", "tnc", "cobyla", 
+                  "slsqp", "dogleg", "trust-constr", "trust-ncg", "trust-exact", "trust-krylov"]:
+        def error(params):
+            y_mod = f(x_data, *params)
+            return np.sum(((y_data - y_mod) / std) ** 2)
+
+        def jac_num(params):
+            eps = np.sqrt(np.finfo(float).eps)
+            return np.array([
+                (error(params + eps * np.eye(1, len(params), k)[0]) - error(params)) / eps
+                for k in range(len(params))
+            ])
+
+        def hess_num(params):
+            eps = np.sqrt(np.finfo(float).eps)
+            n = len(params)
+            hess = np.zeros((n, n))
+            for i in range(n):
+                for j in range(n):
+                    ei = eps * np.eye(1, n, i)[0]
+                    ej = eps * np.eye(1, n, j)[0]
+                    hess[i, j] = (error(params + ei + ej) - error(params + ei) - error(params + ej) + error(params)) / eps**2
+            return hess
+
+        jac = jac_simbolico if jac_simbolico else (jac_num if metodo in ["newton-cg", "dogleg", "trust-ncg", "trust-krylov", "trust-exact"] else None)
+        hess = hess_simbolico if hess_simbolico else (hess_num if metodo in ["trust-ncg", "trust-krylov", "trust-exact"] else None)
+
+        res = minimize(error, parametros_iniciales, method=metodo, jac=jac, hess=hess, options=opciones)
+        params_opt = res.x
+
+        # Calcular matriz de covarianza si se solicita
+        cov = None
+        if covarianza:
+            if hess:
+                hess_eval = hess(params_opt)
+                try:
+                    cov = np.linalg.inv(hess_eval)
+                except np.linalg.LinAlgError:
+                    cov = np.full((len(params_opt), len(params_opt)), np.nan)
+            elif jac:
+                J = np.array(jac(params_opt))
+                W = np.diag(1 / np.array(std)**2)
+                try:
+                    cov = np.linalg.inv(J.T @ W @ J)
+                except np.linalg.LinAlgError:
+                    cov = np.full((len(params_opt), len(params_opt)), np.nan)
+
+        return (params_opt, cov) if covarianza else params_opt
+
+    elif metodo == "curve_fit":
+        from scipy.optimize import curve_fit
+        popt, pcov = curve_fit(f, x_data, y_data, sigma=std, p0=parametros_iniciales, absolute_sigma=True)
+        return (popt, pcov) if covarianza else popt
+
+    elif metodo == "polyfit":
+        grado = opciones.get("grado", 1) if opciones else 1
+        coef = np.polyfit(x_data, y_data, deg=grado, w=1 / np.array(std))
+        # polyfit no da covarianza
+        return (coef, None) if covarianza else coef
+
+    elif metodo == "differential_evolution":
+        from scipy.optimize import differential_evolution
+        bounds = opciones.get("bounds")
+        res = differential_evolution(error, bounds=bounds, **(opciones or {}))
+        return res.x
+
+    elif metodo == "dual_annealing":
+        from scipy.optimize import dual_annealing
+        bounds = opciones.get("bounds")
+        res = dual_annealing(error, bounds=bounds, **(opciones or {}))
+        return res.x
+
+    elif metodo == "basinhopping":
+        from scipy.optimize import basinhopping
+        minimizer_kwargs = {"method": opciones.get("local_method", "L-BFGS-B")}
+        res = basinhopping(error, parametros_iniciales, minimizer_kwargs=minimizer_kwargs, **(opciones or {}))
+        return res.x
+
+    elif metodo == "shgo":
+        from scipy.optimize import shgo
+        bounds = opciones.get("bounds")
+        res = shgo(error, bounds=bounds, **(opciones or {}))
+        return res.x
+
+    else:
+        raise ValueError(f"Método '{metodo}' no reconocido o no implementado.")
+

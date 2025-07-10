@@ -22,14 +22,15 @@ pop,cov  = curve_fit(lambda x, a: a * np.sin(x), x, y, p0=[2])
 
 from settings.ajustes import chi2_pvalor
 
-chi, p, dof = chi2_pvalor(y, np.ones_like(y) * 0.2, pop[0] * np.sin(x), pop)
+chi, p= chi2_pvalor(y, np.ones_like(y) * 0.2, pop[0] * np.sin(x), pop, reducido =True)
 
-print(f"Chi^2: {chi}, p-valor: {p}, Grados de libertad: {dof}")
+print(f"Chi^2: {chi}, p-valor: {p}")
 
 
 # --- Crear gráfico ---
 fig, ax = plt.subplots()
 ax.plot(x, y, label='línea 1')
+ax.plot(x, pop[0] * np.sin(x), label='ajuste', linestyle='--', color='red')
 
 # Título y etiquetas
 ax.set_title("Prueba de gráfico lineal")
