@@ -1,0 +1,9 @@
+README.md
+setup.py
+Settings/__init__.py
+Settings/db_config.py
+Settings/logging_config.py
+settings.egg-info/PKG-INFO
+settings.egg-info/SOURCES.txt
+settings.egg-info/dependency_links.txt
+settings.egg-info/top_level.txt
