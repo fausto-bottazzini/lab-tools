@@ -3,3 +3,49 @@ from settings import DB_HOST, DB_PORT, configure_logging
 
 configure_logging()
 print(f"Conectando a {DB_HOST}:{DB_PORT}")
+
+import numpy as np
+import matplotlib.pyplot as plt
+from settings.estetica import configurar_estilo_axes
+
+from scipy.optimize import curve_fit
+
+# --- Datos ---
+x = np.linspace(0, 10, 100)
+y = 2 * np.sin(x)
+
+ruido  = np.random.normal(0, 0.2, size=x.shape)
+
+y = y + ruido
+
+pop,cov  = curve_fit(lambda x, a: a * np.sin(x), x, y, p0=[2])
+
+from settings.ajustes import chi2_pvalor
+
+chi, p, dof = chi2_pvalor(y, np.ones_like(y) * 0.2, pop[0] * np.sin(x), pop)
+
+print(f"Chi^2: {chi}, p-valor: {p}, Grados de libertad: {dof}")
+
+
+# --- Crear gráfico ---
+fig, ax = plt.subplots()
+ax.plot(x, y, label='línea 1')
+
+# Título y etiquetas
+ax.set_title("Prueba de gráfico lineal")
+ax.set_xlabel("Eje X")
+ax.set_ylabel("Eje Y")
+
+
+
+# Grilla punteada blanca y suave
+ax.grid(True, linestyle=':', linewidth=0.5, color='white', alpha=0.3)
+configurar_estilo_axes(ax)
+
+# Mostrar leyenda si querés
+ax.legend()
+
+# Mostrar
+plt.show()
+
+

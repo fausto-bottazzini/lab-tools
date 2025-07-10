@@ -4,6 +4,7 @@
 
 import numpy as np                                                         # numpy
 import matplotlib.pyplot as plt                                            # graficos
+from matplotlib.animation import FuncAnimation                             # animaciones
 import scipy.stats as stats                                                # pvalor y chi2
 from scipy.stats import chi2                                               # chi2
 import scipy.special                                                       # funciones raras

@@ -6,47 +6,51 @@ import numpy as np                                                         # num
 import matplotlib.pyplot as plt                                            # graficos
 import scipy.stats as stats                                                # pvalor y chi2
 from scipy.stats import chi2                                               # chi2
-import scipy.special                                                       # funciones raras
 from scipy.optimize import curve_fit                                       # curv_fit (ajustes)
 from scipy.optimize import minimize                                        # minimize (ajustes con metodos)
-from scipy.signal import find_peaks                                        # máximos
-from scipy.signal import argrelmin                                         # mínimos
-import sympy as sp                                                         # sympy 
-import pandas as pd
-import inspect
 
-from scipy.optimize._numdiff import approx_derivative
-from sympy import symbols, Matrix
-from sympy import lambdify, hessian
-
-import sys
-import os
-
-import math
-import functools as ft                     
-import inspect as ins                      
-import random as rm                                                        # aleaorio                             
-
-import statistics   
-
-########################################################################
 
 # Bondad (Chi^2 y p-valor)
-def chi2_pvalor(x, y, yerr, y_mod, cantidad_parametros):
-    "calcula el chi^2 y el p-valor de un ajuste, (devuelve tambien los grados de libertad)"
-    "error Chi^2: np.sqrt(2*nu)"
-    "Chi^2 Reducido: normalizar(nu, chi2)"
-    "error np.sqrt(2/nu)"
-    y = np.array(y)
-    yerr = np.array(yerr)
-    y_mod = np.array(y_mod)
-    def chi2(y_mod, y, yerr):
-        return np.sum(((y - y_mod) / yerr)**2)
+def chi2_pvalor(y, yerr, y_mod, parametros, reducido = False):
+    """
+    Calcula el chi-cuadrado (χ²), el p-valor y los grados de libertad de un ajuste.
+
+    Parámetros:
+    - y: valores observados
+    - yerr: errores de cada punto
+    - y_mod: valores ajustados (modelo)
+    - parametros: pop del modelo
+    - reducido: si es True, calcula el χ² reducido (χ² / grados de libertad) y no devuelve los grados de libertad
+    
+    Returns:
+    - chi_cuadrado: valor del estadístico χ²
+    - p_value: probabilidad asociada
+    - grados: grados de libertad (n - cantidad_parametros)
+
+    Notas:
+    - Error de χ²: sqrt(2 * grados)
+    - χ² reducido = χ² / grados
+    - Error del χ² reducido: sqrt(2 / grados)
+    """
+    
+    cantidad_parametros = len(parametros)
+    y = np.asarray(y)
+    yerr = np.asarray(yerr)
+    y_mod = np.asarray(y_mod)
+
+    residuo_cuadrado_ponderado = ((y - y_mod) / yerr) ** 2
+    chi_cuadrado = np.sum(residuo_cuadrado_ponderado)
     grados = len(y) - int(cantidad_parametros)
-    chi_cuadrado = chi2(y_mod, y, yerr)
     p_value = stats.chi2.sf(chi_cuadrado, grados)
-    return chi_cuadrado, p_value, grados
-# np.array(
+
+    if reducido:
+        chi_cuadrado /= grados
+        p_value = stats.chi2.sf(chi_cuadrado, 1)
+        return chi_cuadrado, p_value
+    else:
+        return chi_cuadrado, p_value, grados
+
+
 
 
 # Coeficiente de Pearson (R^2)
