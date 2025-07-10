@@ -4,7 +4,7 @@ setup(
     name='settings',
     version='0.1.0',
     description='Librería personal con funciones matemáticas y utilitarias',
-    author='Julia Bottazzini',
+    author='Bottazzini',
     packages=find_packages(),  # encuentra automáticamente el paquete "settings"
     include_package_data=True,
     install_requires=[],
