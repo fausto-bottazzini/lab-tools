@@ -193,10 +193,11 @@ def Minimizer(f, x_data, y_data, std, parametros_iniciales, metodo="curve_fit", 
                     cov = np.linalg.inv(hess(params_opt))
                 elif jac:
                     J = np.atleast_2d(jac(params_opt))
-                    if J.ndim == 1:
-                        J = J[:, np.newaxis]  # Para modelos con un solo parámetro
-                    if J.shape[0] == len(std):  # forma (N, P)
-                        W = np.diag(1 / np.array(std)**2)
+                    # Asegurar que J tenga forma (N, P)
+                    if J.shape[0] != len(std) and J.shape[1] == len(std):
+                        J = J.T
+                    if J.shape[0] == len(std):
+                        W = np.diag(1 / np.array(std) ** 2)
                         cov = np.linalg.inv(J.T @ W @ J)
                     else:
                         cov = np.full((len(params_opt), len(params_opt)), np.nan)
