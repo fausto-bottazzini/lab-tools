@@ -18,13 +18,14 @@ y = f(x, 2, 3) + np.random.normal(0, 0.2, size=x.shape)
 
 ruido  = np.random.normal(0, 0.2, size=x.shape)
 
+
 y = y + ruido
 
 metodos = ["nelder-mead", "powell", "bfgs", "l-bfgs-b", "cg", "newton-cg", "tnc", "cobyla", "slsqp",
             "dogleg", "trust-constr", "trust-ncg", "trust-exact", "trust-krylov", "curve_fit", "polyfit",
               "differential_evolution", "dual_annealing", "basinhopping", "shgo"]
 
-i = 5
+i = 14
 
 cov=None
 pop,cov = Minimizer(
@@ -34,6 +35,7 @@ pop,cov = Minimizer(
     metodo="newton-cg",
     covarianza=True
 )
+print(metodos[i])
 print(pop)
 
 
