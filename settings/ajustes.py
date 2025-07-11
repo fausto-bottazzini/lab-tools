@@ -154,12 +154,14 @@ def Minimizer(f, x_data, y_data, std, parametros_iniciales, metodo="curve_fit", 
     """
 
     metodo = metodo.lower()
+    print("Método recibido:", metodo)
+
+    def error(params):
+        y_mod = f(x_data, *params)
+        return np.sum(((y_data - y_mod) / std) ** 2)
 
     if metodo in ["nelder-mead", "powell", "bfgs", "l-bfgs-b", "cg", "newton-cg", "tnc", "cobyla", 
                   "slsqp", "dogleg", "trust-constr", "trust-ncg", "trust-exact", "trust-krylov"]:
-        def error(params):
-            y_mod = f(x_data, *params)
-            return np.sum(((y_data - y_mod) / std) ** 2)
 
         def jac_num(params):
             eps = 1e-6  # más grande para evitar ruido
@@ -214,8 +216,7 @@ def Minimizer(f, x_data, y_data, std, parametros_iniciales, metodo="curve_fit", 
 
     elif metodo == "curve_fit":
         from scipy.optimize import curve_fit
-        popt, pcov = curve_fit(f, x_data, y_data, sigma=std, p0=parametros_iniciales, absolute_sigma=True)
-        print("PCOV =", pcov)
+        popt, pcov = curve_fit(f, x_data, y_data, sigma=std, p0=parametros_iniciales, absolute_sigma=True, **(opciones or {}))
         return (popt, pcov) if covarianza else popt
 
     elif metodo == "polyfit":
