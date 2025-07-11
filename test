@@ -11,8 +11,10 @@ from settings.estetica import configurar_estilo_axes
 from settings.ajustes import *
 
 # --- Datos ---
-x = np.linspace(0, 10, 100)
-y = 2 * np.sin(x)
+def f(x, a, b):
+    return a * np.sin(x) + b
+x = np.linspace(0, 2*np.pi, 100)
+y = f(x, 2, 3) + np.random.normal(0, 0.2, size=x.shape)
 
 ruido  = np.random.normal(0, 0.2, size=x.shape)
 
@@ -24,13 +26,18 @@ metodos = ["nelder-mead", "powell", "bfgs", "l-bfgs-b", "cg", "newton-cg", "tnc"
 
 i = 5
 
-pop,cov  = Minimizer(
-    lambda x, a: a * np.sin(x),
+cov=None
+pop,cov = Minimizer(
+    f,
     x, y, np.ones_like(y) * 0.2,
-    [1], metodo=metodos[i], opciones={"maxfev": 10000}
+    [1, 5],
+    metodo="newton-cg",
+    covarianza=True
 )
+print(pop)
 
-chi, p = chi2_pvalor(y, np.ones_like(y) * 0.2, pop[0] * np.sin(x), pop, reducido =True)
+
+chi, p = chi2_pvalor(y, np.ones_like(y) * 0.2, f(x,*pop), pop, reducido =True)
 
 print(f"Chi^2: {chi}, p-valor: {p}")
 
@@ -43,7 +50,7 @@ print(f"Parámetros óptimos: {pop} ± {np.sqrt(np.diag(cov))}" if cov is not No
 fig, ax = plt.subplots()
 ax.plot(x, y, label='línea 1')
 ax.fill_between(x, y - 0.2, y + 0.2, color='blue', alpha=0.3, label='error')
-ax.plot(x, pop[0] * np.sin(x), label='ajuste', linestyle='--', color='red')
+ax.plot(x, f(x,*pop), label='ajuste', linestyle='--', color='red')
 
 # Título y etiquetas
 ax.set_title("Prueba de gráfico lineal")

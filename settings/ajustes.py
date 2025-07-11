@@ -162,11 +162,15 @@ def Minimizer(f, x_data, y_data, std, parametros_iniciales, metodo="curve_fit", 
             return np.sum(((y_data - y_mod) / std) ** 2)
 
         def jac_num(params):
-            eps = np.sqrt(np.finfo(float).eps)
-            return np.array([
-                (error(params + eps * np.eye(1, len(params), k)[0]) - error(params)) / eps
-                for k in range(len(params))
-            ])
+            eps = 1e-6  # más grande para evitar ruido
+            grad = []
+            for i in range(len(params)):
+                delta = np.zeros_like(params)
+                delta[i] = eps
+                e_plus = error(params + delta)
+                e_base = error(params)
+                grad.append((e_plus - e_base) / eps)
+            return np.array(grad)
 
         def hess_num(params):
             eps = np.sqrt(np.finfo(float).eps)
@@ -188,6 +192,8 @@ def Minimizer(f, x_data, y_data, std, parametros_iniciales, metodo="curve_fit", 
         # Calcular matriz de covarianza si se solicita
         cov = None
         if covarianza:
+            print("Jac shape:", J.shape)
+            print("J.T @ W @ J =", J.T @ W @ J) 
             try:
                 if hess:
                     cov = np.linalg.inv(hess(params_opt))
