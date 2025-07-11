@@ -25,17 +25,17 @@ metodos = ["nelder-mead", "powell", "bfgs", "l-bfgs-b", "cg", "newton-cg", "tnc"
             "dogleg", "trust-constr", "trust-ncg", "trust-exact", "trust-krylov", "curve_fit", "polyfit",
               "differential_evolution", "dual_annealing", "basinhopping", "shgo"]
 
-i = 14
+i = 19
 
 cov=None
-pop,cov = Minimizer(
+pop = Minimizer(
     f,
     x, y, np.ones_like(y) * 0.2,
     [1, 5],
     metodo=metodos[i],
     covarianza=True,
     opciones = {
-    "bounds": [(0, 0), (5, 5)]}
+    "bounds": [(0, 10), (0, 10)]}
 )
 
 print(pop)

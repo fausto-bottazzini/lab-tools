@@ -123,9 +123,9 @@ def residuos(y, yerr, y_mod, grafico=False, bines=None, ponderado=True):
 
     return residuos
 
-# Agregar métodos y calcular mas covarianzas
+# Agregar métodos y resolver el tema de la covarainza
 def Minimizer(f, x_data, y_data, std, parametros_iniciales, metodo="curve_fit", opciones=None,
-              jac_simbolico=None, hess_simbolico=None, covarianza=True):
+              jac_simbolico=None, hess_simbolico=None, covarianza=False):
     """
     Ajuste general con múltiples métodos.
 
@@ -138,7 +138,7 @@ def Minimizer(f, x_data, y_data, std, parametros_iniciales, metodo="curve_fit", 
     - opciones: opciones específicas del método
     - jac_simbolico: función que devuelve gradiente del error (exacto) 
     - hess_simbolico: función que devuelve hessiano del error (exacto)
-    - covarianza: si True, devuelve también matriz de covarianza
+    - covarianza: si True, devuelve también matriz de covarianza (no anda)
 
     Retorna:
     - params_opt: parámetros encontrados
@@ -217,7 +217,7 @@ def Minimizer(f, x_data, y_data, std, parametros_iniciales, metodo="curve_fit", 
     elif metodo == "curve_fit":
         from scipy.optimize import curve_fit
         popt, pcov = curve_fit(f, x_data, y_data, sigma=std, p0=parametros_iniciales, absolute_sigma=True, **(opciones or {}))
-        return (popt, pcov) if covarianza else popt
+        return (popt, pcov) # if covarianza else popt
 
     elif metodo == "polyfit":
         grado = opciones.get("grado", 1) if opciones else 1
