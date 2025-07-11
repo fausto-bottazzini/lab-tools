@@ -141,7 +141,7 @@ def Minimizer(f, x_data, y_data, std, parametros_iniciales, metodo="curve_fit", 
     - covarianza: si True, devuelve también matriz de covarianza (no anda)
 
     Retorna:
-    - params_opt: parámetros encontrados
+    - params_opt: parámetros encontrados (y la covarainza en curve_fit)
     - cov: matriz de covarianza (si covarianza=True)
 
     Notas:
