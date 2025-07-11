@@ -25,7 +25,7 @@ metodos = ["nelder-mead", "powell", "bfgs", "l-bfgs-b", "cg", "newton-cg", "tnc"
             "dogleg", "trust-constr", "trust-ncg", "trust-exact", "trust-krylov", "curve_fit", "polyfit",
               "differential_evolution", "dual_annealing", "basinhopping", "shgo"]
 
-i = 16
+i = 14
 
 cov=None
 pop,cov = Minimizer(
@@ -35,9 +35,9 @@ pop,cov = Minimizer(
     metodo=metodos[i],
     covarianza=True,
     opciones = {
-    "bounds": [(0, 10), (0, 10)]}
+    "bounds": [(0, 0), (5, 5)]}
 )
-print(metodos[i])
+
 print(pop)
 
 

@@ -227,26 +227,31 @@ def Minimizer(f, x_data, y_data, std, parametros_iniciales, metodo="curve_fit", 
 
     elif metodo == "differential_evolution":
         from scipy.optimize import differential_evolution
-        bounds = opciones.get("bounds")
-        res = differential_evolution(error, bounds=bounds, **(opciones or {}))
+        opciones = opciones.copy() if opciones else {}
+        bounds = opciones.pop("bounds")  # eliminar para evitar duplicado
+        res = differential_evolution(error, bounds=bounds, **opciones)
         return res.x
 
     elif metodo == "dual_annealing":
         from scipy.optimize import dual_annealing
-        bounds = opciones.get("bounds")
-        res = dual_annealing(error, bounds=bounds, **(opciones or {}))
+        opciones = opciones.copy() if opciones else {}
+        bounds = opciones.pop("bounds")
+        res = dual_annealing(error, bounds=bounds, **opciones)
         return res.x
 
     elif metodo == "basinhopping":
         from scipy.optimize import basinhopping
-        minimizer_kwargs = {"method": opciones.get("local_method", "L-BFGS-B")}
-        res = basinhopping(error, parametros_iniciales, minimizer_kwargs=minimizer_kwargs, **(opciones or {}))
+        opciones = opciones.copy() if opciones else {}
+        local_method = opciones.pop("local_method", "L-BFGS-B")
+        minimizer_kwargs = {"method": local_method}
+        res = basinhopping(error, parametros_iniciales, minimizer_kwargs=minimizer_kwargs, **opciones)
         return res.x
 
     elif metodo == "shgo":
         from scipy.optimize import shgo
-        bounds = opciones.get("bounds")
-        res = shgo(error, bounds=bounds, **(opciones or {}))
+        opciones = opciones.copy() if opciones else {}
+        bounds = opciones.pop("bounds")
+        res = shgo(error, bounds=bounds, **opciones)
         return res.x
 
     else:
