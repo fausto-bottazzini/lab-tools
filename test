@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from settings.estetica import configurar_estilo_axes
 
-from scipy.optimize import curve_fit
+from settings.ajustes import *
 
 # --- Datos ---
 x = np.linspace(0, 10, 100)
@@ -18,18 +18,31 @@ ruido  = np.random.normal(0, 0.2, size=x.shape)
 
 y = y + ruido
 
-pop,cov  = curve_fit(lambda x, a: a * np.sin(x), x, y, p0=[2])
+metodos = ["nelder-mead", "powell", "bfgs", "l-bfgs-b", "cg", "newton-cg", "tnc", "cobyla", "slsqp",
+            "dogleg", "trust-constr", "trust-ncg", "trust-exact", "trust-krylov", "curve_fit", "polyfit",
+              "differential_evolution", "dual_annealing", "basinhopping", "shgo"]
 
-from settings.ajustes import chi2_pvalor
+i = 5
 
-chi, p= chi2_pvalor(y, np.ones_like(y) * 0.2, pop[0] * np.sin(x), pop, reducido =True)
+pop,cov  = Minimizer(
+    lambda x, a: a * np.sin(x),
+    x, y, np.ones_like(y) * 0.2,
+    [1], metodo=metodos[i], opciones={"maxfev": 10000}
+)
+
+chi, p = chi2_pvalor(y, np.ones_like(y) * 0.2, pop[0] * np.sin(x), pop, reducido =True)
 
 print(f"Chi^2: {chi}, p-valor: {p}")
+
+r2 = R2(y, pop[0] * np.sin(x), error=True)
+print(f"R²: {r2[0]} ± {r2[1]}")
+print(f"Parámetros óptimos: {pop} ± {np.sqrt(np.diag(cov))}" if cov is not None else pop)
 
 
 # --- Crear gráfico ---
 fig, ax = plt.subplots()
 ax.plot(x, y, label='línea 1')
+ax.fill_between(x, y - 0.2, y + 0.2, color='blue', alpha=0.3, label='error')
 ax.plot(x, pop[0] * np.sin(x), label='ajuste', linestyle='--', color='red')
 
 # Título y etiquetas

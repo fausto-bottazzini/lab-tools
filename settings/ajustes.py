@@ -123,8 +123,7 @@ def residuos(y, yerr, y_mod, grafico=False, bines=None, ponderado=True):
 
     return residuos
 
-
-# A corregir y mejorar
+# Agregar métodos y calcular mas covarianzas
 def Minimizer(f, x_data, y_data, std, parametros_iniciales, metodo="curve_fit", opciones=None,
               jac_simbolico=None, hess_simbolico=None, covarianza=True):
     """
@@ -134,10 +133,10 @@ def Minimizer(f, x_data, y_data, std, parametros_iniciales, metodo="curve_fit", 
     - f: función modelo
     - x_data, y_data: datos
     - std: errores
-    - parametros_iniciales: guess inicial
+    - parametros_iniciales: guess inicial (polyfit, differential_evolution, dual_annealing y shgo no requieren)
     - metodo: string del método
     - opciones: opciones específicas del método
-    - jac_simbolico: función que devuelve gradiente del error (exacto)
+    - jac_simbolico: función que devuelve gradiente del error (exacto) 
     - hess_simbolico: función que devuelve hessiano del error (exacto)
     - covarianza: si True, devuelve también matriz de covarianza
 
@@ -149,7 +148,7 @@ def Minimizer(f, x_data, y_data, std, parametros_iniciales, metodo="curve_fit", 
     - Métodos disponibles: "nelder-mead", "powell", "bfgs", "l-bfgs-b", "cg", "newton-cg",
       "tnc", "cobyla", "slsqp", "dogleg", "trust-constr", "trust-ncg", "trust-exact", "trust-krylov",
       "curve_fit", "polyfit", "differential_evolution", "dual_annealing", "basinhopping", "shgo".
-    - Si se usa "polyfit", se debe especificar el grado en opciones.
+    - Polyfit se debe especificar el grado en opciones y no devuelve covarianza.
     - Diferential Evolution, Dual Annealing y shgo requieren bounds en opciones.
     - Basinhopping requiere un método local en opciones.
     """
@@ -189,19 +188,20 @@ def Minimizer(f, x_data, y_data, std, parametros_iniciales, metodo="curve_fit", 
         # Calcular matriz de covarianza si se solicita
         cov = None
         if covarianza:
-            if hess:
-                hess_eval = hess(params_opt)
-                try:
-                    cov = np.linalg.inv(hess_eval)
-                except np.linalg.LinAlgError:
-                    cov = np.full((len(params_opt), len(params_opt)), np.nan)
-            elif jac:
-                J = np.array(jac(params_opt))
-                W = np.diag(1 / np.array(std)**2)
-                try:
-                    cov = np.linalg.inv(J.T @ W @ J)
-                except np.linalg.LinAlgError:
-                    cov = np.full((len(params_opt), len(params_opt)), np.nan)
+            try:
+                if hess:
+                    cov = np.linalg.inv(hess(params_opt))
+                elif jac:
+                    J = np.atleast_2d(jac(params_opt))
+                    if J.ndim == 1:
+                        J = J[:, np.newaxis]  # Para modelos con un solo parámetro
+                    if J.shape[0] == len(std):  # forma (N, P)
+                        W = np.diag(1 / np.array(std)**2)
+                        cov = np.linalg.inv(J.T @ W @ J)
+                    else:
+                        cov = np.full((len(params_opt), len(params_opt)), np.nan)
+            except:
+                cov = np.full((len(params_opt), len(params_opt)), np.nan)
 
         return (params_opt, cov) if covarianza else params_opt
 
