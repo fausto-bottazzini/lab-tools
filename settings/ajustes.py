@@ -192,13 +192,13 @@ def Minimizer(f, x_data, y_data, std, parametros_iniciales, metodo="curve_fit", 
         # Calcular matriz de covarianza si se solicita
         cov = None
         if covarianza:
-            print("Jac shape:", J.shape)
-            print("J.T @ W @ J =", J.T @ W @ J) 
             try:
                 if hess:
                     cov = np.linalg.inv(hess(params_opt))
                 elif jac:
                     J = np.atleast_2d(jac(params_opt))
+                    print("Jac shape:", J.shape)
+                    print("J.T @ W @ J =", J.T @ W @ J) 
                     # Asegurar que J tenga forma (N, P)
                     if J.shape[0] != len(std) and J.shape[1] == len(std):
                         J = J.T
