@@ -48,7 +48,7 @@ def chi2_pvalor(y, yerr, y_mod, parametros, reducido = True):
     else:
         return chi_cuadrado, p_value, grados
 
-def R2(y, y_mod, error=False):
+def R2(y, y_mod, error = False):
     """
     Calcula el coeficiente de determinación R² (Pearson) de un ajuste.
 
@@ -88,7 +88,7 @@ def R2(y, y_mod, error=False):
 # residuos (cuadrados)
 # histograma: #bines = np.sqrt(#med)
 
-def residuos(y, yerr, y_mod, grafico=False, bines=None, ponderado=True):
+def residuos(y, yerr, y_mod, grafico = False, bines = None, ponderado = True):
     """
     Calcula los residuos cuadrados (normales o ponderados) de un ajuste y, opcionalmente, los grafica.
 
@@ -124,8 +124,8 @@ def residuos(y, yerr, y_mod, grafico=False, bines=None, ponderado=True):
     return residuos
 
 # Agregar métodos y resolver el tema de la covarainza
-def Minimizer(f, x_data, y_data, std, parametros_iniciales, metodo="curve_fit", opciones=None,
-              jac_simbolico=None, hess_simbolico=None, covarianza=False):
+def Minimizer(f, x_data, y_data, std, parametros_iniciales, metodo = "curve_fit", opciones = None,
+              jac_simbolico = None, hess_simbolico = None, covarianza = False):
     """
     Ajuste general con múltiples métodos.
 
@@ -188,7 +188,7 @@ def Minimizer(f, x_data, y_data, std, parametros_iniciales, metodo="curve_fit", 
         jac = jac_simbolico if jac_simbolico else (jac_num if metodo in ["newton-cg", "dogleg", "trust-ncg", "trust-krylov", "trust-exact"] else None)
         hess = hess_simbolico if hess_simbolico else (hess_num if metodo in ["trust-ncg", "trust-krylov", "trust-exact"] else None)
 
-        res = minimize(error, parametros_iniciales, method=metodo, jac=jac, hess=hess, options=opciones)
+        res = minimize(error, parametros_iniciales, method=metodo, jac = jac, hess = hess, options = opciones)
         params_opt = res.x
 
         # Calcular matriz de covarianza si se solicita
@@ -221,7 +221,7 @@ def Minimizer(f, x_data, y_data, std, parametros_iniciales, metodo="curve_fit", 
 
     elif metodo == "polyfit":
         grado = opciones.get("grado", 1) if opciones else 1
-        coef = np.polyfit(x_data, y_data, deg=grado, w=1 / np.array(std))
+        coef = np.polyfit(x_data, y_data, deg = grado, w = 1 / np.array(std))
         # polyfit no da covarianza
         return (coef, None) if covarianza else coef
 
@@ -229,14 +229,14 @@ def Minimizer(f, x_data, y_data, std, parametros_iniciales, metodo="curve_fit", 
         from scipy.optimize import differential_evolution
         opciones = opciones.copy() if opciones else {}
         bounds = opciones.pop("bounds")  # eliminar para evitar duplicado
-        res = differential_evolution(error, bounds=bounds, **opciones)
+        res = differential_evolution(error, bounds = bounds, **opciones)
         return res.x
 
     elif metodo == "dual_annealing":
         from scipy.optimize import dual_annealing
         opciones = opciones.copy() if opciones else {}
         bounds = opciones.pop("bounds")
-        res = dual_annealing(error, bounds=bounds, **opciones)
+        res = dual_annealing(error, bounds = bounds, **opciones)
         return res.x
 
     elif metodo == "basinhopping":
@@ -244,14 +244,14 @@ def Minimizer(f, x_data, y_data, std, parametros_iniciales, metodo="curve_fit", 
         opciones = opciones.copy() if opciones else {}
         local_method = opciones.pop("local_method", "L-BFGS-B")
         minimizer_kwargs = {"method": local_method}
-        res = basinhopping(error, parametros_iniciales, minimizer_kwargs=minimizer_kwargs, **opciones)
+        res = basinhopping(error, parametros_iniciales, minimizer_kwargs = minimizer_kwargs, **opciones)
         return res.x
 
     elif metodo == "shgo":
         from scipy.optimize import shgo
         opciones = opciones.copy() if opciones else {}
         bounds = opciones.pop("bounds")
-        res = shgo(error, bounds=bounds, **opciones)
+        res = shgo(error, bounds = bounds, **opciones)
         return res.x
 
     else:

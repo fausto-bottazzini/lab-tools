@@ -7,8 +7,13 @@ print(f"Conectando a {DB_HOST}:{DB_PORT}")
 import numpy as np
 import matplotlib.pyplot as plt
 from settings.estetica import configurar_estilo_axes
+from settings.funciones import ordenar_por
 
-from settings.ajustes import *
+
+
+a = [2,3,51,2]
+b = [2,6,5,4]
+print(ordenar_por(a, b))  # [2, 3, 2, 51]
 
 # --- Datos ---
 def f(x, a, b):
@@ -17,57 +22,19 @@ x = np.linspace(0, 2*np.pi, 100)
 y = f(x, 2, 3) + np.random.normal(0, 0.2, size=x.shape)
 
 ruido  = np.random.normal(0, 0.2, size=x.shape)
-
-
 y = y + ruido
-
-metodos = ["nelder-mead", "powell", "bfgs", "l-bfgs-b", "cg", "newton-cg", "tnc", "cobyla", "slsqp",
-            "dogleg", "trust-constr", "trust-ncg", "trust-exact", "trust-krylov", "curve_fit", "polyfit",
-              "differential_evolution", "dual_annealing", "basinhopping", "shgo"]
-
-i = 5
-
-cov=None
-pop = Minimizer(
-    f,
-    x, y, np.ones_like(y) * 0.2,
-    [1, 5],
-    metodo=metodos[i]
-)
-
-print(pop)
-
-
-chi, p = chi2_pvalor(y, np.ones_like(y) * 0.2, f(x,*pop), pop, reducido =True)
-
-print(f"Chi^2: {chi}, p-valor: {p}")
-
-r2 = R2(y, pop[0] * np.sin(x), error=True)
-print(f"R²: {r2[0]} ± {r2[1]}")
-print(f"Parámetros óptimos: {pop} ± {np.sqrt(np.diag(cov))}" if cov is not None else pop)
 
 
 # --- Crear gráfico ---
 fig, ax = plt.subplots()
 ax.plot(x, y, label='línea 1')
 ax.fill_between(x, y - 0.2, y + 0.2, color='blue', alpha=0.3, label='error')
-ax.plot(x, f(x,*pop), label='ajuste', linestyle='--', color='red')
-
-# Título y etiquetas
 ax.set_title("Prueba de gráfico lineal")
 ax.set_xlabel("Eje X")
 ax.set_ylabel("Eje Y")
-
-
-
-# Grilla punteada blanca y suave
 ax.grid(True, linestyle=':', linewidth=0.5, color='white', alpha=0.3)
 configurar_estilo_axes(ax)
-
-# Mostrar leyenda si querés
 ax.legend()
-
-# Mostrar
 plt.show()
 
 

@@ -3,92 +3,146 @@
 from .imports import*
 from .derivadas import*
 
-def hessiano(f_sp, param, val = None, total = False):    
-  "calcula la matriz hessiana simbolica de una función (sympy) respecto de los parametros, con total = True se calcula sobre todas la variables, puede evaluarse"
-  "param cadena de texto [a, b, c] (con "") val debe ser del tamaño de las variables aun total = True"
-  p = parametros(f_sp)
+def hessiano(f, param = None, val = None, total = False, salida_numpy = True):
+    """
+    Calcula el hessiano simbólico o evaluado de una función escalar f: ℝⁿ → ℝ¹.
 
-  param_syms = [sp.symbols(v) for v in param]
-  if not set(param_syms).issubset(set(p)):
-    raise ValueError("Los parámetros a optimizar deben ser un subconjunto de las variables de la función.")
+    Parámetros:
+    - f: función escalar definida con sympy.
+    - param: lista de nombres de variables respecto a las cuales derivar (por ejemplo: ["a", "b"]).
+             Si None o total=True, se usan todos los parámetros de la función.
+    - val: lista de valores para evaluar las derivadas (uno por cada parámetro de la función).
+    - total: si True, deriva respecto a todos los parámetros sin importar 'param'.
+    - salida_numpy: si True y se evalúa, devuelve un np.ndarray.
 
-  derivadas_segundas = derivadas_parciales_segundas(f_sp, val)
+    Retorna:
+    - sympy.Matrix (simbólica o evaluada) o np.ndarray (si salida_numpy=True).
+    """
+    p = parametros(f)
 
-  if total:
-      hessian_filtered = derivadas_segundas
-  else:                # Filtrar las derivadas segundas correspondientes a los parámetros a optimizar
-    indices_param = [p.index(sym) for sym in param_syms]  # Índices de los parámetros relevantes
-    hessian_filtered = [
-      [derivadas_segundas[i][j] for j in indices_param]  # Filtrar columnas
-      for i in indices_param                             # Filtrar filas
-    ]
-
-  if val is not None:
-    try:
-      valores = {p[i]: val[i] for i in range(len(val))}    # Crear un diccionario de sustituciones para los valores
-      hessian_filtered = [[entry.evalf(subs=valores) for entry in row] for row in hessian_filtered]
-      return np.array(hessian_filtered, dtype=np.float64)  # Convertir la matriz filtrada a formato numpy
-    except Exception as e:
-      raise TypeError(f"No se pudo evaluar el Hessiano con los valores proporcionados: {e}")
-    
-  return sp.Matrix(hessian_filtered)                   # Si no hay valores numéricos, devolver la matriz simbólica
-
-#-------------------------------
-
-def jacobiano(fs_sp, param, val=None, total=False):
-    "calcula el jacobiano simbolico de una lista de funciones (sympy) respecto de los parametros, con total = True se calcula sobre todas las variables, puede evaluarse"
-    if not isinstance(fs_sp, (list, tuple)):
-        fs_sp = [fs_sp]  # Convertir a lista si no lo es
-
-    param_syms = [sp.symbols(v) for v in param]
-    ps_list = [parametros(f_sp) for f_sp in fs_sp] 
-
-    if not all(set(param_syms).issubset(set(p)) for p in ps_list):
-        raise ValueError("Los parámetros a optimizar deben ser un subconjunto de las variables de las funciones.")
-
-    derivadas = [derivadas_parciales(f_sp, val=None) for f_sp in fs_sp]
-
-    if not total:
-        # Filtrar columnas correspondientes a los parámetros especificados
-        jacobiano_filtered = []
-        for f_der, p in zip(derivadas, ps_list):
-            indices_param = [p.index(sym) for sym in param_syms]
-            jacobiano_filtered.append([f_der[i] for i in indices_param])
+    # Determinar variables respecto de las cuales derivar
+    if param is None or total:
+        param_syms = p
     else:
-        jacobiano_filtered = derivadas
+        param_syms = [sp.symbols(v) for v in param]
+        if not set(param_syms).issubset(set(p)):
+            raise ValueError("Los parámetros deben ser un subconjunto de las variables de la función.")
 
+    # Construcción del Hessiano simbólico
+    expr = f(*p)
+    H = sp.hessian(expr, param_syms)
+
+    # Evaluación
     if val is not None:
         if not isinstance(val, (list, tuple)):
             val = [val]
-        if len(p) != len(val):
-            raise ValueError("La cantidad de parámetros y valores no coincide")
+        if len(val) != len(p):
+            raise ValueError("Cantidad de valores no coincide con los parámetros.")
+        sustituciones = dict(zip(p, val))
         try:
-            # Crear un diccionario de sustitución para cada función
-            jacobiano_evaluado = []
-            for i, f_der in enumerate(jacobiano_filtered):
-                valores = {ps_list[i][j]: val[j] for j in range(len(val))}
-                jacobiano_evaluado.append([entry.evalf(subs=valores) for entry in f_der])
-            return np.array(jacobiano_evaluado, dtype=np.float64)  # Convertir a matriz NumPy
+            H = H.evalf(subs=sustituciones)
+            return np.array(H).astype(np.float64) if salida_numpy else H
         except Exception as e:
-            raise ValueError(f"No se pudo evaluar el Jacobiano con los valores proporcionados: {e}")
+            raise RuntimeError(f"No se pudo evaluar el Hessiano: {e}")
 
-    # Si no se proporcionan valores, devolver la matriz simbólica
-    return sp.Matrix(jacobiano_filtered)
+    return H
 
 #-------------------------------
-def gradiente(f_sp, val = None):
-   "calcula el gradiente simbolico de una función (sympy), puede evaluarse"
-   gradiente = np.array(derivadas_parciales(f_sp, val))
-   return gradiente
 
-def laplaciano(f_sp, val = None):
-  "calcula el laplaciano simbolico de una función (sympy), puede evaluarse"
-  p = parametros(f_sp)
-  ds = derivadas_parciales_segundas(f_sp)
-  terminos = []
-  for i in range(len(p)):
-      terminos.append(ds[i][i])
-  return np.sum(terminos)
+def jacobiano(fs, param = None, val = None, total = False, salida_numpy = True):
+    """
+    Calcula el jacobiano simbólico o evaluado de una lista de funciones f: R^n -> R^m.
+
+    Parámetros:
+    - fs: función o lista de funciones simbólicas
+    - param: lista de nombres de variables a derivar (opcional si total=True)
+    - val: valores en los que evaluar (uno por cada parámetro de la función)(opcional) 
+    - total: si True, deriva respecto a todos los parámetros de cada función
+    - salida_numpy: si True y val está dado, devuelve matriz NumPy evaluada
+
+    Retorna:
+    - Matriz simbólica (por defecto) o NumPy evaluada.
+    """
+    if not isinstance(fs, (list, tuple)):
+        fs = [fs]
+
+    ps_list = [parametros(f) for f in fs]
+
+    # Determinar parámetros respecto de los que derivar
+    if total or param is None:
+        param_syms = ps_list[0]  # todos los parámetros de la primera función
+    else:
+        param_syms = [sp.symbols(v) for v in param]
+        if not all(set(param_syms).issubset(set(p)) for p in ps_list):
+            raise ValueError("Los parámetros deben ser un subconjunto de las variables de las funciones.")
+
+    # Derivar
+    derivadas = [derivadas_parciales(f) for f in fs]
+
+    # Filtrar columnas si corresponde
+    if not total and param is not None:
+        jac_filtrado = []
+        for f_der, p in zip(derivadas, ps_list):
+            indices = [p.index(sym) for sym in param_syms]
+            jac_filtrado.append([f_der[i] for i in indices])
+    else:
+        jac_filtrado = derivadas
+
+    # Evaluación numérica (si corresponde)
+    if val is not None:
+        if not isinstance(val, (list, tuple)):
+            val = [val]
+        if len(val) != len(ps_list[0]):
+            raise ValueError("La cantidad de valores no coincide con los parámetros de las funciones.")
+        try:
+            jac_eval = []
+            for i, fila in enumerate(jac_filtrado):
+                substs = {ps_list[i][j]: val[j] for j in range(len(val))}
+                jac_eval.append([expr.evalf(subs=substs) for expr in fila])
+            return np.array(jac_eval, dtype=np.float64) if salida_numpy else sp.Matrix(jac_eval)
+        except Exception as e:
+            raise RuntimeError(f"Error al evaluar el Jacobiano: {e}")
+
+    return sp.Matrix(jac_filtrado)
+
+#-------------------------------
+
+def gradiente(f, val = None, salida_numpy = True):
+    """
+    Calcula el gradiente (vector de derivadas parciales) de una función escalar f.
+
+    Parámetros:
+    - f: función escalar simbólica (definida con sympy).
+    - val: valores en los que se evalúa (opcional).
+    - salida_numpy: si True y val está dado, devuelve np.ndarray; si False, devuelve sympy.Matrix o lista.
+
+    Retorna:
+    - Lista de derivadas simbólicas, sympy.Matrix o np.ndarray evaluada.
+    """
+    derivadas = derivadas_parciales(f, val)
+
+    if val is not None:
+        return np.array(derivadas, dtype=np.float64) if salida_numpy else derivadas
+    return sp.Matrix(derivadas)
+
+def laplaciano(f, val = None):
+    """
+    Calcula el laplaciano de una función escalar f: suma de derivadas segundas ∂²f/∂xᵢ².
+
+    Parámetros:
+    - f: función escalar simbólica (definida con sympy).
+    - val: valores numéricos en los que evaluar (opcional).
+
+    Retorna:
+    - Laplaciano simbólico o evaluado.
+    """
+    p = parametros(f)
+    derivadas_2 = derivadas_parciales_segundas(f, val)
+    diag = [derivadas_2[i][i] for i in range(len(p))]
+
+    if val is not None:
+        return float(np.sum(diag))  # todos los valores ya están evaluados
+    return sp.simplify(sp.Add(*diag))
 
 
 
