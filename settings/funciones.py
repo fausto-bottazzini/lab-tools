@@ -1,6 +1,10 @@
 " funciones generales"
 
-from .imports import*
+import numpy as np
+import sympy as sp
+import matplotlib as plt
+from scipy.signal import find_peaks, argrelmin
+import inspect as ins
 
 def lineal(x, a, b):
     """Función lineal: y = ax + b"""
@@ -141,7 +145,7 @@ def numpy_a_sympy(func):
     Convierte una función definida con np.sin, np.exp, etc. a sympy.
     Solo soporta funciones simples.
     """
-    source = inspect.getsource(func)
+    source = ins.getsource(func)
     source = source.replace("np.", "sp.")
     namespace = {"sp": sp}
     exec(source, namespace)

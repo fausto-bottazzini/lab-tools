@@ -103,14 +103,14 @@ def residuos(y, yerr, y_mod, grafico = False, bines = None, ponderado = True):
     Retorna:
     - residuos: residuos al cuadrado (normales o ponderados)
     """
-    y_data = np.asarray(y_data)
+    y = np.asarray(y)
     yerr = np.asarray(yerr)
     y_mod = np.asarray(y_mod)
     
     if ponderado:
-        residuos = ((y_data - y_mod) / yerr) ** 2
+        residuos = ((y - y_mod) / yerr) ** 2
     else:
-        residuos = (y_data - y_mod) ** 2
+        residuos = (y - y_mod) ** 2
 
     if grafico:
         plt.figure()
