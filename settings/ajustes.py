@@ -31,15 +31,12 @@ def chi2_pvalor(y, yerr, y_mod, parametros, reducido = True):
     - χ² reducido = χ² / grados
     - Error del χ² reducido: sqrt(2 / grados)
     """
-    
-    cantidad_parametros = len(parametros)
-    y = np.asarray(y)
-    yerr = np.asarray(yerr)
-    y_mod = np.asarray(y_mod)
+    y = np.array(y)
+    yerr = np.array(yerr)
+    y_mod = np.array(y_mod)
 
-    residuo_cuadrado_ponderado = ((y - y_mod) / yerr) ** 2
-    chi_cuadrado = np.sum(residuo_cuadrado_ponderado)
-    grados = len(y) - int(cantidad_parametros)
+    chi_cuadrado = np.sum(((y - y_mod) / yerr) ** 2)
+    grados = len(y) - int(len(parametros))
     p_value = stats.chi2.sf(chi_cuadrado, grados)
 
     if reducido:
@@ -65,8 +62,8 @@ def R2(y, y_mod, error = False):
     - R² = 1 - SS_res / SS_tot
     - Error aproximado: sqrt(4 * R² * (1 - R²) / (n - 2))
     """
-    y = np.asarray(y)
-    y_mod = np.asarray(y_mod)
+    y = np.array(y)
+    y_mod = np.array(y_mod)
 
     ss_res = np.sum((y - y_mod) ** 2)
     ss_tot = np.sum((y - np.mean(y)) ** 2)
@@ -103,9 +100,9 @@ def residuos(y, yerr, y_mod, grafico = False, bines = None, ponderado = True):
     Retorna:
     - residuos: residuos al cuadrado (normales o ponderados)
     """
-    y = np.asarray(y)
-    yerr = np.asarray(yerr)
-    y_mod = np.asarray(y_mod)
+    y = np.array(y)
+    yerr = np.array(yerr)
+    y_mod = np.array(y_mod)
     
     if ponderado:
         residuos = ((y - y_mod) / yerr) ** 2
