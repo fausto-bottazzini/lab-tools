@@ -18,7 +18,7 @@ def propagacion(f, val, cov):
     - cov_f: matriz de covarianza propagada (m x m) como np.ndarray
     """
     try:
-        J = jacobiano(f, val = val, salida_numpy = False)   # Devuelve sp.Matrix con valores evaluados
+        J = jacobiano(f, val = val)  
         J_np = np.array(J).astype(np.float64)
         cov_np = np.array(cov).astype(np.float64)
         return J_np @ cov_np @ J_np.T
