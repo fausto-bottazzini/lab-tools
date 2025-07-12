@@ -36,7 +36,7 @@ def propagacion_std(f, val, stdval):
     - stdval: lista de desviaciones estándar
 
     Retorna:
-    - Lista de desviaciones estándar propagadas (√ de la diagonal de cov_f)
+    - Lista de desviaciones estándar propagadas (raiz de la diagonal de cov_f)
     """
     cov = np.diag(np.array(stdval)**2)
     cov_f = propagacion(f, val, cov)
