@@ -135,7 +135,10 @@ def parametros(f):
     """
     Devuelve los parámetros simbólicos de una función f definida como: def f(x, a, ...): return ...
     """
-    f_obj = getattr(ins.getmodule(f), f.__name__)
+    try:
+        f_obj = getattr(ins.getmodule(f), f.__name__)
+    except Exception:
+        f_obj = f  # fallback si fue definida dinámicamente
     p = ins.signature(f_obj).parameters
     return [sp.symbols(k) for k in p]
 
