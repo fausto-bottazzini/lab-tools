@@ -118,7 +118,7 @@ def residuos(y, yerr, y_mod, grafico = False, bines = None, ponderado = True):
         if ponderado:
             titulo += " ponderados"
         plt.title(titulo)
-        bins = int(bines) if bines else int(np.sqrt(len(y_data)))
+        bins = int(bines) if bines else int(np.sqrt(len(y)))
         plt.hist(residuos, bins=bins)
 
     return residuos
