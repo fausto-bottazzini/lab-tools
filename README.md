@@ -8,3 +8,4 @@ En derivadas funciones que calculan las primeras y segundas derivadas,
 En matrices todas las matrices de derivadas (Gradiente, Jacobiano, Laplaciano, Hessiano),
 En propagación el cálculo de la matriz de covarianza propagada,
 En series, Taylor y Fourier
+(Beta polyfitter e interoplación)
