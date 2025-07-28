@@ -5,7 +5,8 @@ En estetica se encuentran los estilos de los graficos,
 En funciones algunas funciones generales,
 En ajuste se encuetnran las funciones chi2_pvalor, R2, residuos y Minimizer (funciona de manera indemendiente),
 En derivadas funciones que calculan las primeras y segundas derivadas,
+En interpolación interpolaciones polinomicas de Lagrange y Newton y pilines cubicos.
 En matrices todas las matrices de derivadas (Gradiente, Jacobiano, Laplaciano, Hessiano),
+En polifytter ajuste de cuadrados mínimos polinomial de formal númerica y analítica. 
 En propagación el cálculo de la matriz de covarianza propagada,
 En series, Taylor y Fourier
-(Beta polyfitter e interoplación)
