@@ -5,64 +5,83 @@ import sympy as sp
 
 # Interpolación polinomica de lagrange 
 
-def InterPolLag(x_data, y_data):
-    "devuelve el polinomio interpolador de un set de datos calculado en la forma de Lagrange"
+def interpol_lagrange(x_data, y_data, return_symbolic = False):
+    """
+    Devuelve una función evaluable (lambdificada) del polinomio interpolador de Lagrange 
+    para los puntos dados (x_data, y_data).
+    
+    Parámetros:
+    - x_data: lista o array de valores de x
+    - y_data: lista o array de valores de y correspondientes
+    - return_symbolic: si es True, también retorna el polinomio simbólico expandido
+    
+    Retorna:
+    - f_interp: función evaluable f(x)
+    - (opcional) polinomio simbólico expandido
+    """
     x_data = np.array(x_data, dtype = float)
     y_data = np.array(y_data, dtype = float)
-    n = len(x_data)
     x = sp.Symbol("x")
-    polinomio = 0 
-    for i in range(0,n,1):
+    n = len(x_data)
+
+    polinomio = 0
+    for i in range(n):
         numerador = 1
-        denominador = 1 
-        for j in range(0,n,1):
-            if (i!=j):
-                numerador = numerador*(x-x_data[j])
-                denominador = denominador*(x_data[i]-x_data[j])
-            termino = (numerador/denominador)*y_data[i]
-        polinomio = polinomio + termino
-    polisimple = sp.expand(polinomio)
-    return sp.lambdify(x,polisimple)
+        denominador = 1
+        for j in range(n):
+            if i != j:
+                numerador *= (x - x_data[j])
+                denominador *= (x_data[i] - x_data[j])
+        termino = (numerador / denominador) * y_data[i]
+        polinomio += termino
+
+    polinomio = sp.expand(polinomio)
+    f_interp = sp.lambdify(x, polinomio, modules="numpy")
+
+    if return_symbolic:
+        return f_interp, polinomio
+    return f_interp
 
 #Interpolación Newton
 
-def InterPolNew(x_data, y_data):
-    "devuelve el polinomio interpolador de un set de datos calculado en la forma de Newton o diferencias finitas "
+def interpol_newton(x_data, y_data, return_symbolic=False):
+    """
+    Devuelve una función evaluable (lambdificada) del polinomio interpolador de Newton
+    (diferencias divididas) para los puntos dados (x_data, y_data).
+    
+    Parámetros:
+    - x_data: lista o array de valores de x
+    - y_data: lista o array de valores de y correspondientes
+    - return_symbolic: si es True, también retorna el polinomio simbólico expandido
+    
+    Retorna:
+    - f_interp: función evaluable f(x)
+    - (opcional) polinomio simbólico expandido
+    """
     x_data = np.array(x_data, dtype = float)
     y_data = np.array(y_data, dtype = float)
-    titulo = ["i","xi","yi"]
     n = len(x_data)
-    ki = np.arange(0,n,1)
-    tabla = np.concatenate(([ki],[x_data],[y_data]), axis=0)
-    tabla = np.transpose(tabla)
-    dfinita = np.zeros(shape=(n,n), dtype = float)
-    tabla = np.concatenate((tabla,dfinita), axis = 1)
-    [n,m] = np.shape(tabla)
-    diagonal = n-1
-    j = 3
-    while (j<m):
-        titulo.append('F['+str(j-2)+']')
-        i=0
-        paso = j-2
-        while(i< diagonal):
-            denominador = (x_data[i+paso]-x_data[i])
-            numerador = tabla[i+1,j-1]-tabla[i,j-1]
-            tabla[i,j] = numerador/denominador
-            i=i+1
-        diagonal = diagonal-1 
-        j=j+1
-    dDividida = tabla[0,3:]
-    n = len(dfinita)
+    
+    # Construir tabla de diferencias divididas (sólo la primera fila)
+    coef = np.copy(y_data)
+    for j in range(1, n):
+        coef[j:n] = (coef[j:n] - coef[j-1:n-1]) / (x_data[j:n] - x_data[0:n-j])
+    
+    # Construcción simbólica del polinomio
     x = sp.Symbol("x")
-    polinomio = y_data[0]
-    for j in range(1,n,1):
-        factor = dDividida[j-1]
-        termino = 1
-        for k in range(0,j,1):
-            termino = termino*(x-x_data[k])
-        polinomio = polinomio + termino*factor
-    polisimple = polinomio.expand()
-    return sp.lambdify(x,polisimple)
+    polinomio = coef[0]
+    for i in range(1, n):
+        term = coef[i]
+        for j in range(i):
+            term *= (x - x_data[j])
+        polinomio += term
+    
+    polinomio = sp.expand(polinomio)
+    f_interp = sp.lambdify(x, polinomio, modules="numpy")
+
+    if return_symbolic:
+        return f_interp, polinomio
+    return f_interp
 
 #interpolacion spilines cubicos
 import scipy.interpolate as si

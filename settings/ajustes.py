@@ -120,6 +120,13 @@ def residuos(y, yerr, y_mod, grafico = False, bines = None, ponderado = True):
 
     return residuos
 
+
+
+
+
+
+
+
 # Agregar métodos y resolver el tema de la covarainza
 def Minimizer(f, x_data, y_data, std, parametros_iniciales, metodo = "curve_fit", opciones = None,
               jac_simbolico = None, hess_simbolico = None, covarianza = False):
