@@ -1,4 +1,4 @@
-# A revisar 
+"Interpolación polinómica y spline cúbico"
 
 import numpy as np
 import sympy as sp

@@ -1,5 +1,4 @@
-# A revisar
-# Extender de manera cerrada
+" Ajuste polinomico"
 
 import numpy as np
 import sympy as sp

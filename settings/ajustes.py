@@ -1,4 +1,4 @@
-" bondad y minimizer"
+"bondad de ajustes y minimizer"
 
 # imports generales
 
@@ -119,13 +119,6 @@ def residuos(y, yerr, y_mod, grafico = False, bines = None, ponderado = True):
         plt.hist(residuos, bins=bins)
 
     return residuos
-
-
-
-
-
-
-
 
 # Agregar métodos y resolver el tema de la covarainza
 def Minimizer(f, x_data, y_data, std, parametros_iniciales, metodo = "curve_fit", opciones = None,
