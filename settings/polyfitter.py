@@ -84,8 +84,8 @@ def polyfitter(orden, x_data, y_data, std = None, decimales = 3, return_eval = F
             H = AtW @ A
             condicion = np.linalg.cond(H)
             if condicion > 1e8:
-                print(f"⚠️ Advertencia: matriz mal condicionada (condición = {condicion:.2e}). Se regulariza.")
                 lamb = condicion* 1e-15
+                print(f"⚠️ Advertencia: matriz mal condicionada (condición = {condicion:.2e}). Se regulariza (λ = {lamb:.2e}) .")
                 H += lamb * np.eye(orden + 1)
             cov = np.linalg.inv(H)
             pop = cov @ AtW @ y_data
@@ -93,8 +93,8 @@ def polyfitter(orden, x_data, y_data, std = None, decimales = 3, return_eval = F
             H = A.T @ A
             condicion = np.linalg.cond(H)
             if condicion > 1e8:
-                print(f"⚠️ Advertencia: matriz mal condicionada (condición = {condicion:.2e}). Considerá usar regularización.")
                 lamb = condicion* 1e-15
+                print(f"⚠️ Advertencia: matriz mal condicionada (condición = {condicion:.2e}). Se regulariza (λ = {lamb:.2e}) .")
                 H += lamb * np.eye(orden + 1)
             cov = np.linalg.inv(H)
             pop = cov @ A.T @ y_data
