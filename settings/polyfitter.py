@@ -5,7 +5,7 @@ import numpy as np
 import sympy as sp
 from scipy.optimize import curve_fit
 
-def polyfitter(orden, x_data, y_data, std = None, decimales = 3, return_eval = False, return_symbolic = False, metodo = 'analitico', regularizar = None, p0 = None):
+def polyfitter(orden, x_data, y_data, std = None, decimales = 3, return_eval = False, return_symbolic = False, metodo = 'analitico', p0 = None):
     """
     Ajuste de mínimos cuadrados (analítico o numérico) de un polinomio de orden dado a datos con errores.
     
@@ -23,8 +23,6 @@ def polyfitter(orden, x_data, y_data, std = None, decimales = 3, return_eval = F
         Si True, devuelve también el polinomio simbólico expandido.
     metodo : str
         'analitico' para solución cerrada, 'numerico' para ajuste curve_fit.
-    regularizar : None o float
-        Si es un número, aplica regularización de Tikhonov con ese valor.
     P0 : array o lista, opcional
         Parámetros iniciales para el ajuste numérico (curve_fit).
 
@@ -84,14 +82,20 @@ def polyfitter(orden, x_data, y_data, std = None, decimales = 3, return_eval = F
             W = np.diag(1 / std**2)
             AtW = A.T @ W
             H = AtW @ A
-            if regularizar is not None:
-                H += regularizar * np.eye(orden + 1)
+            condicion = np.linalg.cond(H)
+            if condicion > 1e8:
+                print(f"⚠️ Advertencia: matriz mal condicionada (condición = {condicion:.2e}). Se regulariza.")
+                lamb = condicion* 1e-15
+                H += lamb * np.eye(orden + 1)
             cov = np.linalg.inv(H)
             pop = cov @ AtW @ y_data
         else:
             H = A.T @ A
-            if regularizar is not None:
-                H += regularizar * np.eye(orden + 1)
+            condicion = np.linalg.cond(H)
+            if condicion > 1e8:
+                print(f"⚠️ Advertencia: matriz mal condicionada (condición = {condicion:.2e}). Considerá usar regularización.")
+                lamb = condicion* 1e-15
+                H += lamb * np.eye(orden + 1)
             cov = np.linalg.inv(H)
             pop = cov @ A.T @ y_data
 
