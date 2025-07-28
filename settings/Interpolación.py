@@ -85,3 +85,26 @@ def interpol_newton(x_data, y_data, return_symbolic=False):
 
 #interpolacion spilines cubicos
 import scipy.interpolate as si
+
+def interpol_spline_cubico(x_data, y_data, bc_type = 'natural', return_obj = False):
+    """
+    Devuelve una función spline cúbica que interpola los puntos dados.
+    
+    Parámetros:
+    - x_data, y_data: listas o arrays de los puntos (x, y)
+    - bc_type: Tipo de condición de contorno ('natural', 'clamped', etc.)
+    - return_obj: si es True, también devuelve el objeto spline completo
+
+    Retorna:
+    - spline_fun: función evaluable
+    - (opcional) spline_obj: objeto CubicSpline de scipy
+    """
+    x_data = np.array(x_data, dtype=float)
+    y_data = np.array(y_data, dtype=float)
+
+    spline_obj = si.CubicSpline(x_data, y_data, bc_type = bc_type)
+    spline_fun = spline_obj.__call__
+
+    if return_obj:
+        return spline_fun, spline_obj
+    return spline_fun
