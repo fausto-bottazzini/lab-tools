@@ -52,6 +52,7 @@ Librería personal con configuraciones y funciones matemáticas útiles para an�
    pip install -e .
 
 4. Ahora podés usarla desde cualquier proyecto local:
+
    ejemplo:
    ```python
    from settings.funciones import maximos
