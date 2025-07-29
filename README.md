@@ -68,7 +68,7 @@ El archivo `setup.py` incluye las dependencias necesarias. Algunas comunes:
 - `sympy`
 
 Si falta alguna al correr, podés instalarla manualmente:
-    ```bash
+   ```bash
     pip install nombre_de_la_libreria
 
 ---
