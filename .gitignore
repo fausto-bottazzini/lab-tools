@@ -1,0 +1,42 @@
+# Entorno virtual
+venv/
+env/
+.venv/
+ENV/
+env.bak/
+
+# Archivos de Python compilados
+__pycache__/
+*.py[cod]
+*.so
+*.pyd
+
+# Archivos de test
+test.py
+tests/
+*.ipynb
+
+# Configuración del IDE (VSCode, PyCharm)
+.vscode/
+.idea/
+
+# Archivos de instalación / build
+*.egg-info/
+build/
+dist/
+
+# Archivos de logs o ejecución
+*.log
+*.tmp
+
+# Archivos ocultos de sistema (especialmente en macOS)
+.DS_Store
+
+# Archivos creados por Jupyter Notebook
+.ipynb_checkpoints/
+
+# Archivo de configuración de pytest u otros tools de testeo
+.cache/
+coverage.*
+htmlcov/
+.tox/

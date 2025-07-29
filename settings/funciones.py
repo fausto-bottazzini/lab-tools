@@ -67,7 +67,7 @@ def ordenar_por(lista, orden):
     return [x for _, x in sorted(zip(orden, lista), key=lambda pair: pair[0])]
 
 # Máximos
-def máximos(x, y, hdt = (0, 1, 0), grafico = False):
+def maximos(x, y, hdt = (0, 1, 0), grafico = False):
     """
     Encuentra los máximos locales en un conjunto de datos.
 
@@ -100,7 +100,7 @@ def máximos(x, y, hdt = (0, 1, 0), grafico = False):
     return xp, yp
 
 # Mínimos
-def mínimos(x, y, ord=1, grafico=False):
+def minimos(x, y, ord=1, grafico=False):
     """
     Encuentra los mínimos locales en un conjunto de datos.
 
