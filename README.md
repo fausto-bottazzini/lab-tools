@@ -26,13 +26,13 @@ Librería personal con configuraciones y funciones matemáticas útiles para an�
 
 1. Cloná e instalá directamente desde la notebook:
    ```python
-    !git clone https://github.com/Boots-bots/Settings.git
-    %cd Settings
-    !pip install -e .
+   !git clone https://github.com/Boots-bots/Settings.git
+   %cd Settings
+   !pip install -e .
 
 2. Ahora podés usarla
    ```python
-    from settings.ajustes import Minimizer
+   from settings.ajustes import Minimizer
 
 
 ### 🔧 Uso local (VSC o similar)
@@ -52,9 +52,10 @@ Librería personal con configuraciones y funciones matemáticas útiles para an�
    pip install -e .
 
 4. Ahora podés usarla desde cualquier proyecto local:
-    ejemplo:
-    from settings.funciones import maximos
-    from settings.series import serie_taylor
+   ejemplo:
+   ```python
+   from settings.funciones import maximos
+   from settings.series import serie_taylor
 
 ---
 
@@ -69,22 +70,21 @@ El archivo `setup.py` incluye las dependencias necesarias. Algunas comunes:
 
 Si falta alguna al correr, podés instalarla manualmente:
    ```bash
-    pip install nombre_de_la_libreria
-
----
+   pip install nombre_de_la_libreria
+   ```
 
 ## 🧪 Ejemplo de rápido uso
    ```python
-    from settings.imports import *
-    from settings.interpolacion import interpol_lagrange
+   from settings.imports import *
+   from settings.interpolacion import interpol_lagrange
 
-    x = [0, 1, 2]
-    y = [0, 1, 0]
-    f = interpol_lagrange(x, y)
-    ejex = np.linspace(0,2,20)
+   x = [0, 1, 2]
+   y = [0, 1, 0]
+   f = interpol_lagrange(x, y)
+   ejex = np.linspace(0,2,20)
         
-    fig, ax = plt.subplots()
-    ax.plot(ejex, f(ejex), "b")
-    ax.plot(x,y,"ro")
-    ax.grid()
-    plt.show()
+   fig, ax = plt.subplots()
+   ax.plot(ejex, f(ejex), "b")
+   ax.plot(x,y,"ro")
+   ax.grid()
+   plt.show()
