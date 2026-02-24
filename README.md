@@ -1,4 +1,4 @@
-# ⚙️ Settings
+# ⚙️ Lab-Tools
 
 Librería personal con configuraciones y funciones matemáticas útiles para análisis, visualización y cálculo simbólico/numérico.
 
