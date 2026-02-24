@@ -40,3 +40,9 @@ dist/
 coverage.*
 htmlcov/
 .tox/
+
+# Archivos de configuración de Docker
+*.egg-info/
+dist/
+build/
+__pycache__/

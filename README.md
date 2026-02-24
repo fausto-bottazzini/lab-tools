@@ -26,21 +26,21 @@ Librería personal con configuraciones y funciones matemáticas útiles para an�
 
 1. Cloná e instalá directamente desde la notebook:
    ```python
-   !git clone https://github.com/Boots-bots/Settings.git
-   %cd Settings
+   !git clone https://github.com/fausto-bottazzini/lab-tools.git
+   %cd lab-tools
    !pip install -e .
 
 2. Ahora podés usarla
    ```python
-   from settings.ajustes import Minimizer
+   from lab-tools.ajustes import Minimizer
 
 
 ### 🔧 Uso local (VSC o similar)
 
 1. Cloná el repositorio:
    ```bash
-   git clone https://github.com/Boots-bots/Settings.git
-   cd Settings
+   git clone https://github.com/fausto-bottazzini/lab-tools.git
+   cd lab-tools
 
 2. (Opcional) Creá y activá un entorno virtual:
    ```bash
@@ -55,8 +55,8 @@ Librería personal con configuraciones y funciones matemáticas útiles para an�
 
    ejemplo:
    ```python
-   from settings.funciones import maximos
-   from settings.series import serie_taylor
+   from lab-tools.funciones import maximos
+   from lab-tools.series import serie_taylor
 
 ---
 
@@ -76,8 +76,8 @@ Si falta alguna al correr, podés instalarla manualmente:
 
 ## 🧪 Ejemplo de rápido uso
    ```python
-   from settings.imports import *
-   from settings.interpolacion import interpol_lagrange
+   from lab-tools.imports import *
+   from lab-tools.interpolacion import interpol_lagrange
 
    x = [0, 1, 2]
    y = [0, 1, 0]

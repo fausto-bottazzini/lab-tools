@@ -1,11 +1,11 @@
 from setuptools import setup, find_packages
 
 setup(
-    name = 'settings',
+    name = 'lab-tools',
     version = '1.0.2',
     description = 'Librería personal con funciones matemáticas y utilitarias',
     author = 'Bottazzini',
-    packages = find_packages(),  # encuentra automáticamente el paquete "settings"
+    packages = find_packages(),  # encuentra automáticamente el paquete "lab-tools"
     include_package_data = True,
     install_requires = [
         "numpy>=1.26.4",
